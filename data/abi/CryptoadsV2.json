@@ -1,0 +1,21 @@
+[
+  "event ApproveOrder(uint256,uint256,string,uint256,address)",
+  "event CloseOrder(uint256,uint256,string)",
+  "event CloseProposal(uint256,uint256)",
+  "event CreateOrder(uint256,address,uint256,uint256,uint256)",
+  "event CreateProposal(uint256,address,uint256,uint256,uint256,string,string,uint256,uint256,uint256)",
+  "function __approve_order(uint256,string)",
+  "function __close_order(uint256,string)",
+  "function __close_proposal(uint256)",
+  "function __create_order(uint256) payable",
+  "function __create_proposal(uint256,uint256,string,string,uint256,uint256)",
+  "function __set_tax(uint256)",
+  "function __set_tax_recipient(address)",
+  "function orders(uint256) view returns (address, uint256, uint256, uint256)",
+  "function owner() view returns (address)",
+  "function proposals(uint256) view returns (address, uint256, uint256)",
+  "function rescueToken(address,uint256)",
+  "function store(uint256,address)",
+  "function tax() view returns (uint256)",
+  "function tax_recipient() view returns (address)"
+]

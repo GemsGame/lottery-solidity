@@ -1,0 +1,280 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xAd8F566D4546d6810A770e7208a133d7d0Bc1537",
+    "txHash": "0x873875bc7ba072cb628bd113282de496cf982616a743ef1c62c680125485a12b"
+  },
+  "proxies": [
+    {
+      "address": "0x5914B1dC0aB6C0244f680C15BF71464F76c31572",
+      "txHash": "0x97139dae970aff649783a72b3220d799cfa6e7be317c6650a2d5c4db764c092c",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "4825c4b518ce6c15744d31ac3d1aeb3c0313e75c50c5ec1450d539c35617db91": {
+      "address": "0x80b313Be000c42f1f123C7FBd74654544818Ba7c",
+      "txHash": "0x3fb258fca048b0b4e0453f425a0f62d474e225ca256d43011a2f4b1046e0d3c2",
+      "layout": {
+        "storage": [
+          {
+            "label": "tax",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:7"
+          },
+          {
+            "label": "tax_recipient",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:8"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:9"
+          },
+          {
+            "label": "initialized",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:10"
+          },
+          {
+            "label": "proposals",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_struct(Proposal)52_storage)dyn_storage",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:12"
+          },
+          {
+            "label": "orders",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_struct(Order)61_storage)dyn_storage",
+            "contract": "CryptoadsV1",
+            "src": "contracts\\CryptoadsV1.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Order)61_storage)dyn_storage": {
+            "label": "struct CryptoadsV1.Order[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Proposal)52_storage)dyn_storage": {
+            "label": "struct CryptoadsV1.Proposal[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(Order)61_storage": {
+            "label": "struct CryptoadsV1.Order",
+            "members": [
+              {
+                "label": "buyer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "proposal",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Proposal)52_storage": {
+            "label": "struct CryptoadsV1.Proposal",
+            "members": [
+              {
+                "label": "influencer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "156efa8ec63f97635d680acd8e31e368a232678059268efe820cbc4b57ffdf1f": {
+      "address": "0x12B0f8E43De1667B79527c70bCc566D9741e890F",
+      "txHash": "0x055bedee70a76b81b1bc302d4eeb8d74b839821b53679e1560ba18c148c86ff2",
+      "layout": {
+        "storage": [
+          {
+            "label": "tax",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:7"
+          },
+          {
+            "label": "tax_recipient",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:8"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:9"
+          },
+          {
+            "label": "initialized",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:10"
+          },
+          {
+            "label": "proposals",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_struct(Proposal)572_storage)dyn_storage",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:12"
+          },
+          {
+            "label": "orders",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_struct(Order)581_storage)dyn_storage",
+            "contract": "CryptoadsV2",
+            "src": "contracts\\CryptoadsV2.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Order)581_storage)dyn_storage": {
+            "label": "struct CryptoadsV2.Order[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Proposal)572_storage)dyn_storage": {
+            "label": "struct CryptoadsV2.Proposal[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(Order)581_storage": {
+            "label": "struct CryptoadsV2.Order",
+            "members": [
+              {
+                "label": "buyer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "proposal",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Proposal)572_storage": {
+            "label": "struct CryptoadsV2.Proposal",
+            "members": [
+              {
+                "label": "influencer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}

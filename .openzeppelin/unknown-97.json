@@ -1,0 +1,142 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x8BeC8e0f87527CB085bCc2FC0A3E26c661cF76e8",
+    "txHash": "0x9fd7b20183b45414677ff91c094ef7b6025b835e2aee99d76187d888a5cc9d4f"
+  },
+  "proxies": [
+    {
+      "address": "0xD505C58b00FF215de36E729E70f0231b17928dBf",
+      "txHash": "0x61df6851bc10a4fff41c9a11005d46d5b7b44b84576fe2807913b86d82f5e60c",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "dc29634653b185c91d54e17adaa6d23b6a27a5b77f7de25669c169d58a354f60": {
+      "address": "0x070f4Ba4396FAB43ffc698E25089B742ECa19f8c",
+      "txHash": "0xc1ee4dae2491fb198de8cf48bcb9fa2e754a684e0b4382c2c8f56619748c2679",
+      "layout": {
+        "storage": [
+          {
+            "label": "tax",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:7"
+          },
+          {
+            "label": "tax_recipient",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:8"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:9"
+          },
+          {
+            "label": "initialized",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:10"
+          },
+          {
+            "label": "proposals",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_struct(Proposal)121_storage)dyn_storage",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:12"
+          },
+          {
+            "label": "orders",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_struct(Order)128_storage)dyn_storage",
+            "contract": "Web3AdsV1",
+            "src": "contracts\\Web3AdsV1.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Order)128_storage)dyn_storage": {
+            "label": "struct Web3AdsV1.Order[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Proposal)121_storage)dyn_storage": {
+            "label": "struct Web3AdsV1.Proposal[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(Order)128_storage": {
+            "label": "struct Web3AdsV1.Order",
+            "members": [
+              {
+                "label": "buyer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "proposal",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Proposal)121_storage": {
+            "label": "struct Web3AdsV1.Proposal",
+            "members": [
+              {
+                "label": "influencer",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "price",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}
