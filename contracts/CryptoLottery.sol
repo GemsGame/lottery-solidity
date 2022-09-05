@@ -224,7 +224,7 @@ contract CryptoLottery is ERC20 {
         lastCombination();
     }
     
-    function claimPay(uint256 round, uint256 number) internal returns (uint) {
+    function claimPay(uint256 round, uint256 number) internal {
         require(
             msg.sender == _tickets[round][number].owner,
             "You are not an owner"
@@ -253,8 +253,6 @@ contract CryptoLottery is ERC20 {
                 _tickets[round][number].token_reward
             );
         }
-
-        return _tickets[round][number].tier;
     }
 
     function getTicketWinNumbers(uint256 round, uint256 number) internal {
@@ -488,7 +486,7 @@ contract CryptoLottery is ERC20 {
         
     }
 
-    function claimTicketReward (uint round, uint number) external returns(uint) {
+    function claimTicketReward (uint round, uint number) external {
         getTicketWinNumbers(round, number);
         addTicketReward(round, number);
         return claimPay(round, number);
