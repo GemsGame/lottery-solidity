@@ -12,18 +12,24 @@ module.exports = {
     }
   },
   networks: {
-    matic: {
+    mumbai: {
       url: "https://matic-mumbai.chainstacklabs.com",
       accounts: [process.env.PRIVATE_KEY],
+      gasPrice: 'auto',
+    },
+    coinex: {
+      url: "https://testnet-rpc.coinex.net",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 53,
       gasPrice: 'auto',
     }
   },
   solidity: {
-    version: "0.8.14",
+    version: "0.8.16",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 100
+        runs: 150
       }
     }
   },
