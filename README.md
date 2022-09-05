@@ -1,2 +1,2 @@
 ### The early alpha version 1.0 with bugs and errors.
-### I do not recommended to production use because you can lose all funds.
+### I do not recommend to production use because you can lose all funds.
