@@ -22,7 +22,7 @@
   "function buyFreeTicket(uint256[6])",
   "function buyTicket(uint256[6]) payable",
   "function claimOwnerReward()",
-  "function claimTicketReward(uint256,uint256)",
+  "function claimTicketReward(uint256,uint256) returns (uint256)",
   "function decimals() view returns (uint8)",
   "function decreaseAllowance(address,uint256) returns (bool)",
   "function getContractBalance() view returns (uint256)",
