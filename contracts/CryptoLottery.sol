@@ -258,7 +258,11 @@ contract CryptoLottery is ERC20 {
     }
 
     function getTicketWinNumbers(uint256 round, uint256 number) internal {
+        
+        require(_tickets[round][number].win_count == 0, "Win numbers already exist");
+
         uint256[] memory _numbers = _rounds[round].win;
+        
 
         for (
             uint256 z = 0;
@@ -278,6 +282,10 @@ contract CryptoLottery is ERC20 {
     }
 
     function addTicketReward(uint round, uint number) internal {
+
+      require(_tickets[round][number].token_reward == 0, "Token reward already exist");
+
+      require(_tickets[round][number].eth_reward == 0, "Eth reward already exist");
         /* 
       0 - free ticket + 50 CL
       1 - free ticket + 100 CL
@@ -483,9 +491,7 @@ contract CryptoLottery is ERC20 {
     function claimTicketReward (uint round, uint number) external returns(uint) {
         getTicketWinNumbers(round, number);
         addTicketReward(round, number);
-        uint tier = claimPay(round, number);
-        
-        return tier;
+        return claimPay(round, number);
     }
 
     function claimOwnerReward() external {
