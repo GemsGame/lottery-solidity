@@ -23,11 +23,12 @@ contract CryptoLottery is ERC20, Events {
         Start
     }
 
-    mapping(uint256 => Ticket[]) private _tickets;
+
     mapping(address => TicketRef[]) private _tickets_ref;
     mapping(address => uint256) private _free_tickets;
 
     Round[] public _rounds;
+    Ticket[] public _tickets;
 
     constructor(
         uint256 round_interval,
@@ -110,7 +111,7 @@ contract CryptoLottery is ERC20, Events {
             0,
             false,
             _rounds.length - 1,
-            _tickets[_rounds.length - 1].length,
+            _tickets.length,
             false,
             block.timestamp,
             0
@@ -118,10 +119,10 @@ contract CryptoLottery is ERC20, Events {
 
         TicketRef memory ticket_ref = TicketRef(
             _rounds.length - 1,
-            _tickets[_rounds.length - 1].length
+            _tickets.length
         );
 
-        _tickets[_rounds.length - 1].push(ticket);
+        _tickets.push(ticket);
         _tickets_ref[msg.sender].push(ticket_ref);
 
         _purchased_tickets += 1;
@@ -143,7 +144,7 @@ contract CryptoLottery is ERC20, Events {
             0,
             false,
             _rounds.length - 1,
-            _tickets[_rounds.length - 1].length,
+            _tickets.length,
             false,
             block.timestamp,
             0
@@ -151,10 +152,10 @@ contract CryptoLottery is ERC20, Events {
 
         TicketRef memory ticket_ref = TicketRef(
             _rounds.length - 1,
-            _tickets[_rounds.length - 1].length
+            _tickets.length
         );
 
-        _tickets[_rounds.length - 1].push(ticket);
+        _tickets.push(ticket);
         _tickets_ref[msg.sender].push(ticket_ref);
 
         _free_tickets[msg.sender] -= 1;
@@ -169,7 +170,6 @@ contract CryptoLottery is ERC20, Events {
                         key,
                         block.difficulty,
                         block.timestamp,
-                        _tickets[_rounds.length - 1].length,
                         block.coinbase
                     )
                 )
@@ -225,73 +225,72 @@ contract CryptoLottery is ERC20, Events {
         lastCombination();
     }
     
-    function claimPay(uint256 round, uint256 number) internal {
+    function claimPay(uint256 number) internal {
         require(
-            msg.sender == _tickets[round][number].owner,
+            msg.sender == _tickets[number].owner,
             "You are not an owner"
         );
         require(
-            _rounds[round].status == RoundStatus.End,
+            _rounds[_tickets[number].round].status == RoundStatus.End,
             "The Round is in process"
         );
 
-        require(_tickets[round][number].paid == false, "The Ticket was paid");
+        require(_tickets[number].paid == false, "The Ticket was paid");
 
-        _tickets[round][number].paid = true;
+        _tickets[number].paid = true;
 
-        if (_tickets[round][number].free_ticket == true) {
-            _free_tickets[_tickets[round][number].owner] += 1;
+        if (_tickets[number].free_ticket == true) {
+            _free_tickets[_tickets[number].owner] += 1;
         }
-        if (_tickets[round][number].eth_reward > 0) {
-            payable(_tickets[round][number].owner).transfer(
-                _tickets[round][number].eth_reward
+        if (_tickets[number].eth_reward > 0) {
+            payable(_tickets[number].owner).transfer(
+                _tickets[number].eth_reward
             );
         }
 
-        if (_tickets[round][number].token_reward > 0) {
+        if (_tickets[number].token_reward > 0) {
             _mint(
-                _tickets[round][number].owner,
-                _tickets[round][number].token_reward
+                _tickets[number].owner,
+                _tickets[number].token_reward
             );
         }
 
         emit ClaimTicketReward(
-            _tickets[round][number].tier,
-            _tickets[round][number].free_ticket,
-            _tickets[round][number].token_reward,
-            _tickets[round][number].eth_reward
+            _tickets[number].tier,
+            _tickets[number].free_ticket,
+            _tickets[number].token_reward,
+            _tickets[number].eth_reward
         );
     }
 
-    function getTicketWinNumbers(uint256 round, uint256 number) internal {
+    function getTicketWinNumbers(uint256 number) internal {
         
-        require(_tickets[round][number].win_count == 0, "Win numbers already exist");
+        require(_tickets[number].win_count == 0, "Win numbers already exist");
 
-        uint256[] memory _numbers = _rounds[round].win;
+        uint256[] memory _numbers = _rounds[_tickets[number].round].win;
         
 
         for (
             uint256 z = 0;
-            z < _tickets[round][number].numbers.length;
+            z < _tickets[number].numbers.length;
             z++
         ) {
             for (uint256 y = 0; y < _numbers.length; y++) {
-                if (_tickets[round][number].numbers[z] == _numbers[y]) {
-                    _tickets[round][number].win_count += 1;
+                if (_tickets[number].numbers[z] == _numbers[y]) {
+                    _tickets[number].win_count += 1;
 
                     if (_numbers[y] == 6) {
-                        _tickets[round][number].win_last_digit = true;
+                        _tickets[number].win_last_digit = true;
                     }
                 }
             }
         }
     }
 
-    function addTicketReward(uint round, uint number) internal {
+    function addTicketReward(uint number) internal {
 
-      require(_tickets[round][number].token_reward == 0, "Token reward already exist");
+      require(_tickets[number].tier == 0, "Already exist");
 
-      require(_tickets[round][number].eth_reward == 0, "Eth reward already exist");
         /* 
       0 - free ticket + 50 CL
       1 - free ticket + 100 CL
@@ -313,191 +312,191 @@ contract CryptoLottery is ERC20, Events {
  
      */
 
-            if (_tickets[round][number].win_count == 0) {
-                _tickets[round][number].token_reward = 50 * 10**18;
-                _tickets[round][number].free_ticket = true;
+            if (_tickets[number].win_count == 0) {
+                _tickets[number].token_reward = 50 * 10**18;
+                _tickets[number].free_ticket = true;
 
-                _token_reward += _tickets[round][number].token_reward;
-                _tickets[round][number].tier = 1;
+                _token_reward += _tickets[number].token_reward;
+                _tickets[number].tier = 1;
             }
 
             if (
-                _tickets[round][number].win_count == 1 &&
-                _tickets[round][number].win_last_digit == false &&
+                _tickets[number].win_count == 1 &&
+                _tickets[number].win_last_digit == false &&
                 __reward_2 == true
             ) {
-                _tickets[round][number].free_ticket = true;
-                _tickets[round][number].token_reward = 100 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
-                 _tickets[round][number].tier = 2;
+                _tickets[number].free_ticket = true;
+                _tickets[number].token_reward = 100 * 10**18;
+                _token_reward += _tickets[number].token_reward;
+                 _tickets[number].tier = 2;
             }
 
             if (
-                _tickets[round][number].win_count == 1 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 1 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 2;
-                _tickets[round][number].token_reward = 2000 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
+                _tickets[number].eth_reward = _ticket_price * 2;
+                _tickets[number].token_reward = 2000 * 10**18;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 2)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 3;
+                _tickets[number].tier = 3;
             }
 
             if (
-                _tickets[round][number].win_count == 2 &&
-                _tickets[round][number].win_last_digit == false
+                _tickets[number].win_count == 2 &&
+                _tickets[number].win_last_digit == false
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 2;
-                _tickets[round][number].token_reward = 2000 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
+                _tickets[number].eth_reward = _ticket_price * 2;
+                _tickets[number].token_reward = 2000 * 10**18;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 2)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 4;
+                _tickets[number].tier = 4;
             }
 
             if (
-                _tickets[round][number].win_count == 2 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 2 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 2;
-                _tickets[round][number].token_reward = 2000 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
+                _tickets[number].eth_reward = _ticket_price * 2;
+                _tickets[number].token_reward = 2000 * 10**18;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 2)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 5;
+                _tickets[number].tier = 5;
             }
 
             if (
-                _tickets[round][number].win_count == 3 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 3 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 5;
-                _tickets[round][number].token_reward = 5000 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
+                _tickets[number].eth_reward = _ticket_price * 5;
+                _tickets[number].token_reward = 5000 * 10**18;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 5)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 6;
+                _tickets[number].tier = 6;
             }
 
             if (
-                _tickets[round][number].win_count == 3 &&
-                _tickets[round][number].win_last_digit == false
+                _tickets[number].win_count == 3 &&
+                _tickets[number].win_last_digit == false
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 10;
-                _tickets[round][number].token_reward = 10000 * 10**18;
+                _tickets[number].eth_reward = _ticket_price * 10;
+                _tickets[number].token_reward = 10000 * 10**18;
 
-                _token_reward += _tickets[round][number].token_reward;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 10)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 7;
+                _tickets[number].tier = 7;
             }
 
             if (
-                _tickets[round][number].win_count == 4 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 4 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward = _ticket_price * 50;
-                _tickets[round][number].token_reward = 50000 * 10**18;
-                _token_reward += _tickets[round][number].token_reward;
+                _tickets[number].eth_reward = _ticket_price * 50;
+                _tickets[number].token_reward = 50000 * 10**18;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 50)) / 100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 8;
+                _tickets[number].tier = 8;
             }
 
             if (
-                _tickets[round][number].win_count == 4 &&
-                _tickets[round][number].win_last_digit == false
+                _tickets[number].win_count == 4 &&
+                _tickets[number].win_last_digit == false
             ) {
-                _tickets[round][number].eth_reward =
+                _tickets[number].eth_reward =
                     _ticket_price *
                     100;
-                _tickets[round][number].token_reward = 100000 * 10**18;
+                _tickets[number].token_reward = 100000 * 10**18;
 
-                _token_reward += _tickets[round][number].token_reward;
+                _token_reward += _tickets[number].token_reward;
 
                 _fee_value += ((_fee * (_ticket_price * 100)) / 100);
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 9;
+                _tickets[number].tier = 9;
             }
 
             if (
-                _tickets[round][number].win_count == 5 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 5 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward =
+                _tickets[number].eth_reward =
                     (2 * address(this).balance) /
                     100;
 
                 _fee_value +=
-                    (_fee * _tickets[round][number].eth_reward) /
+                    (_fee * _tickets[number].eth_reward) /
                     100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 10;
+                _tickets[number].tier = 10;
             }
 
             if (
-                _tickets[round][number].win_count == 5 &&
-                _tickets[round][number].win_last_digit == false
+                _tickets[number].win_count == 5 &&
+                _tickets[number].win_last_digit == false
             ) {
-                _tickets[round][number].eth_reward =
+                _tickets[number].eth_reward =
                     (10 * address(this).balance) /
                     100;
 
                 _fee_value +=
-                    (_fee * _tickets[round][number].eth_reward) /
+                    (_fee * _tickets[number].eth_reward) /
                     100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 11;
+                _tickets[number].tier = 11;
             }
 
             if (
-                _tickets[round][number].win_count == 6 &&
-                _tickets[round][number].win_last_digit == true
+                _tickets[number].win_count == 6 &&
+                _tickets[number].win_last_digit == true
             ) {
-                _tickets[round][number].eth_reward =
+                _tickets[number].eth_reward =
                     (30 * address(this).balance) /
                     100;
 
                 _fee_value +=
-                    (_fee * _tickets[round][number].eth_reward) /
+                    (_fee * _tickets[number].eth_reward) /
                     100;
 
-                _all_eth_reward += _tickets[round][number].eth_reward;
+                _all_eth_reward += _tickets[number].eth_reward;
 
-                _tickets[round][number].tier = 12;
+                _tickets[number].tier = 12;
             }
         
     }
 
-    function claimTicketReward (uint round, uint number) external {
-        getTicketWinNumbers(round, number);
-        addTicketReward(round, number);
-        claimPay(round, number);
+    function claimTicketReward (uint number) external {
+        getTicketWinNumbers(number);
+        addTicketReward(number);
+        claimPay(number);
     }
 
     function claimOwnerReward() external {
@@ -516,7 +515,7 @@ contract CryptoLottery is ERC20, Events {
     }
 
     function getLastTicketsCount() external view returns (uint256) {
-        return _tickets[_rounds.length - 1].length;
+        return _tickets.length;
     }
 
     function getContractBalance() external view returns (uint256) {
@@ -595,9 +594,9 @@ contract CryptoLottery is ERC20, Events {
         )
     {
         uint256 length = howMany;
-        uint256 _total = _tickets[_rounds.length - 1].length;
-        if (length > _tickets[_rounds.length - 1].length - cursor) {
-            length = _tickets[_rounds.length - 1].length - cursor;
+        uint256 _total = _tickets.length;
+        if (length > _tickets.length - cursor) {
+            length = _tickets.length - cursor;
         }
 
         Ticket[] memory ticket_array = new Ticket[](_total);
@@ -606,7 +605,7 @@ contract CryptoLottery is ERC20, Events {
         uint256 j = 0;
 
         for (uint256 i = _total; i >= 1; i--) {
-            ticket_array[j] = _tickets[_rounds.length - 1][i - 1];
+            ticket_array[j] = _tickets[i - 1];
             j++;
         }
 
@@ -642,9 +641,7 @@ contract CryptoLottery is ERC20, Events {
         uint256 j = 0;
 
         for (uint256 i = _tickets_ref[user].length; i >= 1; i--) {
-            ticket_array[j] = _tickets[_tickets_ref[user][i - 1].round][
-                _tickets_ref[user][i - 1].number
-            ];
+            ticket_array[j] = _tickets[_tickets_ref[user][i - 1].number];
             j++;
         }
 
@@ -670,13 +667,13 @@ contract CryptoLottery is ERC20, Events {
 
     function _change_round_interval(uint256 interval) external {
         require(msg.sender == _owner, "You are not an owner");
-        require(interval >= 1000, "Too short");
+  
         _round_interval = interval;
     }
 
     function _change_ticket_price(uint256 price) external {
         require(msg.sender == _owner, "You are not an owner");
-        require(price >= 1000, "Too short");
+
         _ticket_price = price;
     }
 
