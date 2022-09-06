@@ -2,8 +2,9 @@
 pragma solidity 0.8.16;
 
 import "./ERC20.sol";
+import "./Events.sol";
 
-contract CryptoLottery is ERC20 {
+contract CryptoLottery is ERC20, Events {
     uint256 public _round_interval;
     uint256 public _ticket_price;
     uint256 public _fee;
@@ -253,6 +254,13 @@ contract CryptoLottery is ERC20 {
                 _tickets[round][number].token_reward
             );
         }
+
+        emit ClaimTicketReward(
+            _tickets[round][number].tier,
+            _tickets[round][number].free_ticket,
+            _tickets[round][number].token_reward,
+            _tickets[round][number].eth_reward
+        );
     }
 
     function getTicketWinNumbers(uint256 round, uint256 number) internal {
@@ -489,7 +497,7 @@ contract CryptoLottery is ERC20 {
     function claimTicketReward (uint round, uint number) external {
         getTicketWinNumbers(round, number);
         addTicketReward(round, number);
-        return claimPay(round, number);
+        claimPay(round, number);
     }
 
     function claimOwnerReward() external {

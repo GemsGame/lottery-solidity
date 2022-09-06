@@ -1,6 +1,7 @@
 [
   "constructor(uint256,uint256,uint256)",
   "event Approval(address indexed,address indexed,uint256)",
+  "event ClaimTicketReward(uint256,bool,uint256,uint256)",
   "event Transfer(address indexed,address indexed,uint256)",
   "function __reward_2() view returns (bool)",
   "function _all_eth_reward() view returns (uint256)",
@@ -22,7 +23,7 @@
   "function buyFreeTicket(uint256[6])",
   "function buyTicket(uint256[6]) payable",
   "function claimOwnerReward()",
-  "function claimTicketReward(uint256,uint256) returns (uint256)",
+  "function claimTicketReward(uint256,uint256)",
   "function decimals() view returns (uint8)",
   "function decreaseAllowance(address,uint256) returns (bool)",
   "function getContractBalance() view returns (uint256)",
