@@ -13,8 +13,9 @@ contract CryptoLottery is ERC20, Events {
     uint256 public _purchased_tickets;
     uint256 public _purchased_free_tickets;
     uint256 public _all_eth_reward;
+    uint[12] public _tiers;
     uint256 private _secret_key;
-    bool public __reward_2;
+    
 
     address public _owner;
 
@@ -39,7 +40,6 @@ contract CryptoLottery is ERC20, Events {
         _ticket_price = ticket_price;
         _fee = fee;
         _owner = msg.sender;
-        __reward_2 = true;
     }
 
     struct Round {
@@ -48,6 +48,7 @@ contract CryptoLottery is ERC20, Events {
         RoundStatus status;
         uint256[] win;
         uint256 number;
+        uint tickets;
     }
 
     struct TicketRef {
@@ -85,7 +86,8 @@ contract CryptoLottery is ERC20, Events {
             block.timestamp + _round_interval,
             RoundStatus.Start,
             win,
-            _rounds.length
+            _rounds.length,
+            0
         );
 
         _rounds.push(round);
@@ -122,10 +124,12 @@ contract CryptoLottery is ERC20, Events {
             _tickets.length
         );
 
+        _rounds[_rounds.length - 1].tickets += 1;
+        _purchased_tickets += 1;
+
         _tickets.push(ticket);
         _tickets_ref[msg.sender].push(ticket_ref);
 
-        _purchased_tickets += 1;
     }
 
     function buyFreeTicket(uint256[6] memory _numbers) external {
@@ -154,12 +158,13 @@ contract CryptoLottery is ERC20, Events {
             _rounds.length - 1,
             _tickets.length
         );
-
+        
         _tickets.push(ticket);
         _tickets_ref[msg.sender].push(ticket_ref);
 
-        _free_tickets[msg.sender] -= 1;
+        _rounds[_rounds.length - 1].tickets += 1;
         _purchased_free_tickets += 1;
+        _free_tickets[msg.sender] -= 1;
     }
 
     function _random(uint256 key) internal view returns (uint256) {
@@ -292,10 +297,10 @@ contract CryptoLottery is ERC20, Events {
       require(_tickets[number].tier == 0, "Already exist");
 
         /* 
-      0 - free ticket + 50 CL
-      1 - free ticket + 100 CL
+      0 - free ticket + 250 CL
+      1 - 500 CL
       
-      0 + 1 - x2 + 2000 CL
+      0 + 1 - x2 + 1000 CL
       1 + 1 x2 + 2000 CL  
       2 - x2 + 2000 CL
       
@@ -313,22 +318,22 @@ contract CryptoLottery is ERC20, Events {
      */
 
             if (_tickets[number].win_count == 0) {
-                _tickets[number].token_reward = 50 * 10**18;
+                _tickets[number].token_reward = 250 * 10**18;
                 _tickets[number].free_ticket = true;
 
                 _token_reward += _tickets[number].token_reward;
                 _tickets[number].tier = 1;
+                _tiers[0] += 1;
             }
 
             if (
                 _tickets[number].win_count == 1 &&
-                _tickets[number].win_last_digit == false &&
-                __reward_2 == true
+                _tickets[number].win_last_digit == false
             ) {
-                _tickets[number].free_ticket = true;
-                _tickets[number].token_reward = 100 * 10**18;
+                _tickets[number].token_reward = 500 * 10**18;
                 _token_reward += _tickets[number].token_reward;
-                 _tickets[number].tier = 2;
+                _tickets[number].tier = 2;
+                _tiers[1] += 1;
             }
 
             if (
@@ -336,7 +341,7 @@ contract CryptoLottery is ERC20, Events {
                 _tickets[number].win_last_digit == true
             ) {
                 _tickets[number].eth_reward = _ticket_price * 2;
-                _tickets[number].token_reward = 2000 * 10**18;
+                _tickets[number].token_reward = 1000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
 
                 _fee_value += (_fee * (_ticket_price * 2)) / 100;
@@ -344,6 +349,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 3;
+
+                _tiers[2] += 1;
             }
 
             if (
@@ -359,6 +366,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 4;
+
+                _tiers[3] += 1;
             }
 
             if (
@@ -374,6 +383,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 5;
+
+                _tiers[4] += 1;
             }
 
             if (
@@ -389,6 +400,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 6;
+
+                _tiers[5] += 1;
             }
 
             if (
@@ -405,6 +418,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 7;
+
+                _tiers[6] += 1;
             }
 
             if (
@@ -420,6 +435,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 8;
+
+                _tiers[7] += 1;
             }
 
             if (
@@ -438,6 +455,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 9;
+
+                _tiers[8] += 1;
             }
 
             if (
@@ -455,6 +474,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 10;
+
+                _tiers[9] += 1;
             }
 
             if (
@@ -472,6 +493,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 11;
+
+                _tiers[10] += 1;
             }
 
             if (
@@ -489,6 +512,8 @@ contract CryptoLottery is ERC20, Events {
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 12;
+
+                _tiers[11] += 1;
             }
         
     }
@@ -514,12 +539,24 @@ contract CryptoLottery is ERC20, Events {
         return _rounds.length;
     }
 
-    function getLastTicketsCount() external view returns (uint256) {
+    function getTicketsCount() external view returns (uint256) {
         return _tickets.length;
+    }
+
+    function getRoundTicketCount(uint round) external view returns (uint256) {
+        return _rounds[round].tickets;
+    }
+
+    function getLastRoundTicketCount() external view returns (uint256) {
+        return _rounds[_rounds.length - 1].tickets;
     }
 
     function getContractBalance() external view returns (uint256) {
         return address(this).balance;
+    }
+
+    function getWinnerTiers() external view returns (uint[12] memory winners) {
+        return _tiers;
     }
 
     function getTicketRef(address user)
@@ -660,20 +697,14 @@ contract CryptoLottery is ERC20, Events {
         return _free_tickets[user];
     }
 
-    function _switch_free_token_bonus(bool status) external {
-        require(msg.sender == _owner, "You are not an owner");
-        __reward_2 = status;
-    }
 
-    function _change_round_interval(uint256 interval) external {
+    function changeRoundReward(uint256 interval) external {
         require(msg.sender == _owner, "You are not an owner");
-  
         _round_interval = interval;
     }
 
-    function _change_ticket_price(uint256 price) external {
+    function changeTicketPrice(uint256 price) external {
         require(msg.sender == _owner, "You are not an owner");
-
         _ticket_price = price;
     }
 
