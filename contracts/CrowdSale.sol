@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 import "./Token.sol";
+import "./Events.sol";
 
-
-contract CrowdSale is Token {
-
-   event Invest(uint value, uint tokens);
-   event Withdraw(uint amount);
-   event InProgress(bool value);
+contract CrowdSale is Token, Events {
 
    address payable _owner;
    uint public tokenPrice;
@@ -17,8 +13,8 @@ contract CrowdSale is Token {
 
    constructor(uint _tokenPrice) {
      tokenPrice = _tokenPrice;
-     _owner = payable(msg.sender);
      inProgress = true;
+     _owner = payable(msg.sender);
    }
 
    function invest () external payable {
@@ -30,7 +26,7 @@ contract CrowdSale is Token {
 
      _mint(msg.sender, tokens);
      
-     emit Invest(msg.value, tokens);
+     emit InvestEvent(msg.value, tokens);
    }
 
    function winthdraw (uint amount) external {
@@ -41,14 +37,14 @@ contract CrowdSale is Token {
 
      _owner.transfer(amount);
 
-     emit Withdraw(amount);
+     emit WithdrawEvent(amount);
    }
    
 
    function setInProgress (bool value) external {
      require(msg.sender == _owner, 'You are not an owner');
      inProgress = value;
-     emit InProgress(value);
+     emit InProgressEvent(value);
    }
    
 }

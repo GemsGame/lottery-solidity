@@ -3,7 +3,7 @@ pragma solidity 0.8.16;
 import "./Token.sol";
 import "./Events.sol";
 
-contract Lottery is Events, Token {
+contract Lottery is Token, Events {
     uint256 public _round_interval;
     uint256 public _ticket_price;
     uint256 public _fee;
@@ -256,7 +256,7 @@ contract Lottery is Events, Token {
             );
         }
 
-        emit ClaimTicketReward(
+        emit ClaimTicketRewardEvent(
             _tickets[number].tier,
             _tickets[number].free_ticket,
             _tickets[number].token_reward,
@@ -529,6 +529,7 @@ contract Lottery is Events, Token {
 
         _fee_value = 0;
         _token_reward = 0;
+
     }
 
     function getRoundsCount() external view returns (uint256) {
