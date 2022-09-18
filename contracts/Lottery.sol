@@ -600,19 +600,11 @@ contract Lottery is Events, Token {
         if (length > _rounds.length - cursor) {
             length = _rounds.length - cursor;
         }
-
-        Round[] memory _rounds_array = new Round[](_total);
+     
         Round[] memory __array = new Round[](length);
 
-        uint256 j = 0;
-
-        for (uint256 i = _total; i >= 1; i--) {
-            _rounds_array[j] = _rounds[i - 1];
-            j++;
-        }
-
         for (uint256 i = 0; i < length; i++) {
-            __array[i] = _rounds_array[cursor + i];
+            __array[i] = _rounds[_total - cursor - i - 1];
         }
 
         return (__array, cursor, cursor + length, _total);
@@ -633,19 +625,11 @@ contract Lottery is Events, Token {
         if (length > _tickets.length - cursor) {
             length = _tickets.length - cursor;
         }
-
-        Ticket[] memory ticket_array = new Ticket[](_total);
+        
         Ticket[] memory __array = new Ticket[](length);
 
-        uint256 j = 0;
-
-        for (uint256 i = _total; i >= 1; i--) {
-            ticket_array[j] = _tickets[i - 1];
-            j++;
-        }
-
         for (uint256 i = 0; i < length; i++) {
-            __array[i] = ticket_array[cursor + i];
+            __array[i] = _tickets[_total - cursor - i - 1];
         }
 
         return (__array, cursor, cursor + length, _total);
@@ -671,18 +655,11 @@ contract Lottery is Events, Token {
             length = _tickets_ref[user].length - cursor;
         }
 
-        Ticket[] memory ticket_array = new Ticket[](_total);
         Ticket[] memory __array = new Ticket[](length);
 
-        uint256 j = 0;
-
-        for (uint256 i = _tickets_ref[user].length; i >= 1; i--) {
-            ticket_array[j] = _tickets[_tickets_ref[user][i - 1].number];
-            j++;
-        }
-
         for (uint256 i = 0; i < length; i++) {
-            __array[i] = ticket_array[cursor + i];
+
+            __array[i] = _tickets[_tickets_ref[user][_total - cursor - i - 1].number];
         }
 
         return (__array, cursor, cursor + length, _total);
