@@ -28,6 +28,12 @@ module.exports = {
     ],
   },
   networks: {
+    mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 80001,
+      gasPrice: 'auto'
+    },
     coinex: {
       url: "https://testnet-rpc.coinex.net",
       accounts: [process.env.PRIVATE_KEY],
@@ -45,7 +51,31 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       network_id: 1287,
       gasPrice: 'auto'
-    }
+    },
+    celo: {
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 44757,
+      gasPrice: 'auto'
+    },
+    klaytn: {
+      url: "https://public-node-api.klaytnapi.com/v1/baobab",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 1001,
+      gasPrice: 'auto'
+    },
+    cube: {
+      url: "https://http-testnet-jp.cube.network",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 1819,
+      gasPrice: 20000000000
+    },
+    aurora: {
+      url: "https://testnet.aurora.dev",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 1313161555,
+      gasPrice: 'auto'
+    },
   },
   solidity: {
     version: "0.8.16",
