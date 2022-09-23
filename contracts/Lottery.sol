@@ -14,7 +14,7 @@ contract Lottery is Token, Events {
     uint256 public _all_eth_reward;
     uint[12] public _tiers;
     uint256 private _secret_key;
-    address public _owner;
+    address payable public _owner;
 
     enum RoundStatus {
         End,
@@ -35,7 +35,7 @@ contract Lottery is Token, Events {
         _round_interval = round_interval;
         _ticket_price = ticket_price;
         _fee = fee;
-        _owner = msg.sender;
+        _owner = payable(msg.sender);
     }
 
     struct Round {
@@ -126,6 +126,8 @@ contract Lottery is Token, Events {
         _tickets.push(ticket);
         _tickets_ref[msg.sender].push(ticket_ref);
 
+        _fee_value += (_fee * msg.value) / 100;
+
     }
 
     function buyFreeTicket(uint256[6] memory _numbers) external {
@@ -161,6 +163,43 @@ contract Lottery is Token, Events {
         _rounds[_rounds.length - 1].tickets += 1;
         _purchased_free_tickets += 1;
         _free_tickets[msg.sender] -= 1;
+    }
+
+    function buyCLTicket(uint256[6] memory _numbers) external {
+
+        // 100% burning
+
+        require(_free_tickets[msg.sender] > 0, "You do not have a free ticket");
+        require(
+            _rounds[_rounds.length - 1].status == RoundStatus.Start,
+            "Error: the last round ended"
+        );
+        
+        Ticket memory ticket = Ticket(
+            msg.sender,
+            _numbers,
+            0,
+            false,
+            0,
+            0,
+            false,
+            _rounds.length - 1,
+            _tickets.length,
+            false,
+            block.timestamp,
+            0
+        );
+
+        TicketRef memory ticket_ref = TicketRef(
+            _rounds.length - 1,
+            _tickets.length
+        );
+        
+        _tickets.push(ticket);
+        _tickets_ref[msg.sender].push(ticket_ref);
+
+        _rounds[_rounds.length - 1].tickets += 1;
+        _purchased_tickets += 1;
     }
 
     function _random(uint256 key) internal view returns (uint256) {
@@ -340,8 +379,6 @@ contract Lottery is Token, Events {
                 _tickets[number].token_reward = 1000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
 
-                _fee_value += (_fee * (_ticket_price * 2)) / 100;
-
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 3;
@@ -356,8 +393,6 @@ contract Lottery is Token, Events {
                 _tickets[number].eth_reward = _ticket_price * 2;
                 _tickets[number].token_reward = 2000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
-
-                _fee_value += (_fee * (_ticket_price * 2)) / 100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
 
@@ -374,8 +409,6 @@ contract Lottery is Token, Events {
                 _tickets[number].token_reward = 2000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
 
-                _fee_value += (_fee * (_ticket_price * 2)) / 100;
-
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 5;
@@ -390,8 +423,6 @@ contract Lottery is Token, Events {
                 _tickets[number].eth_reward = _ticket_price * 5;
                 _tickets[number].token_reward = 5000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
-
-                _fee_value += (_fee * (_ticket_price * 5)) / 100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
 
@@ -409,8 +440,6 @@ contract Lottery is Token, Events {
 
                 _token_reward += _tickets[number].token_reward;
 
-                _fee_value += (_fee * (_ticket_price * 10)) / 100;
-
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 7;
@@ -425,8 +454,6 @@ contract Lottery is Token, Events {
                 _tickets[number].eth_reward = _ticket_price * 50;
                 _tickets[number].token_reward = 50000 * 10**18;
                 _token_reward += _tickets[number].token_reward;
-
-                _fee_value += (_fee * (_ticket_price * 50)) / 100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
 
@@ -446,8 +473,6 @@ contract Lottery is Token, Events {
 
                 _token_reward += _tickets[number].token_reward;
 
-                _fee_value += ((_fee * (_ticket_price * 100)) / 100);
-
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 9;
@@ -461,10 +486,6 @@ contract Lottery is Token, Events {
             ) {
                 _tickets[number].eth_reward =
                     (2 * address(this).balance) /
-                    100;
-
-                _fee_value +=
-                    (_fee * _tickets[number].eth_reward) /
                     100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
@@ -482,10 +503,6 @@ contract Lottery is Token, Events {
                     (10 * address(this).balance) /
                     100;
 
-                _fee_value +=
-                    (_fee * _tickets[number].eth_reward) /
-                    100;
-
                 _all_eth_reward += _tickets[number].eth_reward;
 
                 _tickets[number].tier = 11;
@@ -499,10 +516,6 @@ contract Lottery is Token, Events {
             ) {
                 _tickets[number].eth_reward =
                     (30 * address(this).balance) /
-                    100;
-
-                _fee_value +=
-                    (_fee * _tickets[number].eth_reward) /
                     100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
@@ -520,16 +533,18 @@ contract Lottery is Token, Events {
         claimPay(number);
     }
 
-    function claimOwnerReward() external {
+    function claimOwnerEthReward(uint number) external {
         require(_owner == msg.sender, "you are not an owner");
-
+        require(_fee_value - number >= 0, "not enough of eth");
         payable(_owner).transfer(_fee_value);
+        _fee_value -= number;
+    }
 
-        _mint(_owner, _token_reward);
-
-        _fee_value = 0;
-        _token_reward = 0;
-
+    function claimOwnerTokenReward(uint number) external {
+        require(_owner == msg.sender, "you are not an owner");
+        require(_token_reward - number >= 0, "not enough of tokens");
+        _mint(_owner, number);
+        _token_reward -= number;
     }
 
     function getRoundsCount() external view returns (uint256) {
