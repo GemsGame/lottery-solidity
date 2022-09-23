@@ -13,6 +13,8 @@ contract Lottery is Token, Events {
     uint256 public _purchased_free_tickets;
     uint256 public _all_eth_reward;
     uint[12] public _tiers;
+    uint[3] public _percent;
+    uint public _promotion_money;
     uint256 private _secret_key;
     address payable public _owner;
 
@@ -36,6 +38,9 @@ contract Lottery is Token, Events {
         _ticket_price = ticket_price;
         _fee = fee;
         _owner = payable(msg.sender);
+        _percent[0] = 2;
+        _percent[1] = 10;
+        _percent[2] = 30;
     }
 
     struct Round {
@@ -91,6 +96,8 @@ contract Lottery is Token, Events {
         _mint(msg.sender, 1000 * 10**18);
 
         _token_reward += 1000 * 10**18;
+
+        emit CreateRoundEvent(_rounds.length);
     }
 
     function buyTicket(uint256[6] memory _numbers) external payable {
@@ -128,6 +135,8 @@ contract Lottery is Token, Events {
 
         _fee_value += (_fee * msg.value) / 100;
 
+        emit BuyTicketEvent( _tickets.length);
+
     }
 
     function buyFreeTicket(uint256[6] memory _numbers) external {
@@ -163,6 +172,8 @@ contract Lottery is Token, Events {
         _rounds[_rounds.length - 1].tickets += 1;
         _purchased_free_tickets += 1;
         _free_tickets[msg.sender] -= 1;
+
+        emit BuyFreeTicketEvent( _tickets.length);
     }
 
     function buyCLTicket(uint256[6] memory _numbers) external {
@@ -200,6 +211,8 @@ contract Lottery is Token, Events {
 
         _rounds[_rounds.length - 1].tickets += 1;
         _purchased_tickets += 1;
+
+        emit BuyCLTicketEvent( _tickets.length);
     }
 
     function _random(uint256 key) internal view returns (uint256) {
@@ -485,7 +498,7 @@ contract Lottery is Token, Events {
                 _tickets[number].win_last_digit == true
             ) {
                 _tickets[number].eth_reward =
-                    (2 * address(this).balance) /
+                    (_percent[0] * address(this).balance) /
                     100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
@@ -500,7 +513,7 @@ contract Lottery is Token, Events {
                 _tickets[number].win_last_digit == false
             ) {
                 _tickets[number].eth_reward =
-                    (10 * address(this).balance) /
+                    (_percent[1] * address(this).balance) /
                     100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
@@ -515,7 +528,7 @@ contract Lottery is Token, Events {
                 _tickets[number].win_last_digit == true
             ) {
                 _tickets[number].eth_reward =
-                    (30 * address(this).balance) /
+                    (_percent[2] * address(this).balance) /
                     100;
 
                 _all_eth_reward += _tickets[number].eth_reward;
@@ -690,7 +703,7 @@ contract Lottery is Token, Events {
     }
 
 
-    function changeRoundReward(uint256 interval) external {
+    function changeRoundInterval(uint256 interval) external {
         require(msg.sender == _owner, "You are not an owner");
         _round_interval = interval;
     }
@@ -698,6 +711,35 @@ contract Lottery is Token, Events {
     function changeTicketPrice(uint256 price) external {
         require(msg.sender == _owner, "You are not an owner");
         _ticket_price = price;
+    }
+
+    function changeFee(uint256 fee) external {
+        require(msg.sender == _owner, "You are not an owner");
+        require(fee >= 1 && fee <= 20, "Error: Badly range");
+        _fee = fee;
+    }
+
+    function changePercent(uint256 _percent0, uint256 _percent1, uint256 _percent2) external {
+        require(msg.sender == _owner, "You are not an owner");
+        require(_percent0 >= 2, "Percent can't be less than");
+        require(_percent1 >= 10, "Percent can't be less than");
+        require(_percent2 >= 30, "Percent can't be less than");
+
+        _percent[0] = _percent0;
+        _percent[1] = _percent1;
+        _percent[2] = _percent2;
+    }
+
+    function addPromoMoney() external payable {
+        require(msg.sender == _owner, "You are not an owner");
+        _promotion_money += msg.value;
+    }
+
+    function withdrawPromoMoney(uint value) external {
+        require(msg.sender == _owner, "You are not an owner");
+        require(_promotion_money - value >= 0, "Not enough");
+        payable(_owner).transfer(value);
+        _promotion_money -= value;
     }
 
     function nextGame() external {

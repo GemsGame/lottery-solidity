@@ -10,16 +10,24 @@ contract CrowdSale is Token, Events, Lottery {
    uint public softCap;
    uint public raisedAmount;
    uint public withdrawAmount;
-   bool public inProgress;
+   uint public time;
 
-   constructor(uint _tokenPrice, uint _interval, uint _t_price, uint _f, uint _ico_soft_cap) Lottery(_interval, _t_price, _f) {
+   CrowdSaleStatus public status;
+
+   enum CrowdSaleStatus {
+        ON,
+        OFF
+   }
+
+   constructor(uint _tokenPrice, uint _interval, uint _t_price, uint _f, uint _ico_soft_cap, uint _ico_time) Lottery(_interval, _t_price, _f) {
      tokenPrice = _tokenPrice;
-     inProgress = true;
      softCap = _ico_soft_cap;
+     time = block.timestamp + _ico_time;
    }
 
    function deposit () external payable {
-     require(inProgress == true, 'Ico is over');
+     require(status == CrowdSaleStatus.ON, 'CrowdSale is closed');
+     require(block.timestamp <= time, 'Time is over');
 
      raisedAmount += msg.value;
 
@@ -40,6 +48,19 @@ contract CrowdSale is Token, Events, Lottery {
 
      emit WithdrawEvent(amount);
    }
-   
-   
+
+   function turnOn() external {
+     require(msg.sender == _owner, 'You are not an owner');
+     status = CrowdSaleStatus.ON; 
+   }
+
+   function turnOff() external {
+     require(msg.sender == _owner, 'You are not an owner'); 
+     status = CrowdSaleStatus.OFF; 
+   }
+
+   function changeTime(uint _time) external {
+     require(msg.sender == _owner, 'You are not an owner'); 
+     time = block.timestamp + _time;
+   }
 }
