@@ -19,7 +19,7 @@ contract CrowdSale is Token, Events, Lottery {
         OFF
    }
 
-   constructor(uint _tokenPrice, uint _interval, uint _t_price, uint _f, uint _ico_soft_cap, uint _ico_time) Lottery(_interval, _t_price, _f) {
+   constructor(uint _tokenPrice, uint _interval, uint _t_price, uint _ticket_p_cl, uint _f, uint _ico_soft_cap, uint _ico_time, uint _n_game_reward) Lottery(_interval, _t_price, _ticket_p_cl, _f, _n_game_reward) {
      tokenPrice = _tokenPrice;
      softCap = _ico_soft_cap;
      time = block.timestamp + _ico_time;

@@ -6,6 +6,7 @@ import "./Events.sol";
 contract Lottery is Token, Events {
     uint256 public _round_interval;
     uint256 public _ticket_price;
+    uint256 public _ticket_price_cl;
     uint256 public _fee;
     uint256 public _fee_value;
     uint256 public _token_reward;
@@ -16,8 +17,14 @@ contract Lottery is Token, Events {
     uint[3] public _percent;
     uint public _promotion_money;
     uint256 private _secret_key;
+    uint256 public _next_game_reward;
     address payable public _owner;
-
+    
+    modifier onlyOwner {
+      require(msg.sender == _owner, "You are not an owner");
+      _;
+    }
+   
     enum RoundStatus {
         End,
         Start
@@ -32,15 +39,19 @@ contract Lottery is Token, Events {
     constructor(
         uint256 round_interval,
         uint256 ticket_price,
-        uint256 fee
+        uint256 ticket_price_cl,
+        uint256 fee,
+        uint256 next_game_reward
     ) {
         _round_interval = round_interval;
         _ticket_price = ticket_price;
+        _ticket_price_cl = ticket_price_cl;
         _fee = fee;
         _owner = payable(msg.sender);
         _percent[0] = 2;
         _percent[1] = 10;
         _percent[2] = 30;
+        _next_game_reward = next_game_reward;
     }
 
     struct Round {
@@ -93,11 +104,16 @@ contract Lottery is Token, Events {
 
         _rounds.push(round);
 
-        _mint(msg.sender, 1000 * 10**18);
+        _mint(msg.sender, _next_game_reward);
 
-        _token_reward += 1000 * 10**18;
+        _token_reward += _next_game_reward;
 
-        emit CreateRoundEvent(_rounds.length);
+        emit CreateRoundEvent(
+            _rounds.length, 
+            _next_game_reward, 
+            msg.sender, 
+            block.timestamp
+        );
     }
 
     function buyTicket(uint256[6] memory _numbers) external payable {
@@ -135,7 +151,12 @@ contract Lottery is Token, Events {
 
         _fee_value += (_fee * msg.value) / 100;
 
-        emit BuyTicketEvent( _tickets.length);
+        emit BuyTicketEvent( 
+            _tickets.length,
+             msg.sender,
+            _numbers,
+            block.timestamp
+        );
 
     }
 
@@ -173,19 +194,23 @@ contract Lottery is Token, Events {
         _purchased_free_tickets += 1;
         _free_tickets[msg.sender] -= 1;
 
-        emit BuyFreeTicketEvent( _tickets.length);
+        emit BuyFreeTicketEvent(
+            _tickets.length,
+             msg.sender,
+            _numbers,
+            block.timestamp
+        );
     }
 
     function buyCLTicket(uint256[6] memory _numbers) external {
 
-        // 100% burning
-
-        require(_free_tickets[msg.sender] > 0, "You do not have a free ticket");
         require(
             _rounds[_rounds.length - 1].status == RoundStatus.Start,
             "Error: the last round ended"
         );
-        
+
+        burnFrom(msg.sender, _ticket_price_cl);
+
         Ticket memory ticket = Ticket(
             msg.sender,
             _numbers,
@@ -212,7 +237,12 @@ contract Lottery is Token, Events {
         _rounds[_rounds.length - 1].tickets += 1;
         _purchased_tickets += 1;
 
-        emit BuyCLTicketEvent( _tickets.length);
+        emit BuyCLTicketEvent(
+            _tickets.length,
+             msg.sender,
+            _numbers,
+            block.timestamp
+        );
     }
 
     function _random(uint256 key) internal view returns (uint256) {
@@ -546,15 +576,13 @@ contract Lottery is Token, Events {
         claimPay(number);
     }
 
-    function claimOwnerEthReward(uint number) external {
-        require(_owner == msg.sender, "you are not an owner");
+    function claimOwnerEthReward(uint number) external onlyOwner {
         require(_fee_value - number >= 0, "not enough of eth");
         payable(_owner).transfer(_fee_value);
         _fee_value -= number;
     }
 
-    function claimOwnerTokenReward(uint number) external {
-        require(_owner == msg.sender, "you are not an owner");
+    function claimOwnerTokenReward(uint number) external onlyOwner {
         require(_token_reward - number >= 0, "not enough of tokens");
         _mint(_owner, number);
         _token_reward -= number;
@@ -703,24 +731,24 @@ contract Lottery is Token, Events {
     }
 
 
-    function changeRoundInterval(uint256 interval) external {
-        require(msg.sender == _owner, "You are not an owner");
+    function changeRoundInterval(uint256 interval) external onlyOwner {
         _round_interval = interval;
     }
 
-    function changeTicketPrice(uint256 price) external {
-        require(msg.sender == _owner, "You are not an owner");
+    function changeTicketPrice(uint256 price) external onlyOwner {
         _ticket_price = price;
     }
 
-    function changeFee(uint256 fee) external {
-        require(msg.sender == _owner, "You are not an owner");
+    function changeFee(uint256 fee) external onlyOwner {
         require(fee >= 1 && fee <= 20, "Error: Badly range");
         _fee = fee;
     }
+    
+    function changeReward(uint256 reward) external onlyOwner {
+        _next_game_reward = reward;
+    }
 
-    function changePercent(uint256 _percent0, uint256 _percent1, uint256 _percent2) external {
-        require(msg.sender == _owner, "You are not an owner");
+    function changePercent(uint256 _percent0, uint256 _percent1, uint256 _percent2) external onlyOwner {
         require(_percent0 >= 2, "Percent can't be less than");
         require(_percent1 >= 10, "Percent can't be less than");
         require(_percent2 >= 30, "Percent can't be less than");
@@ -730,13 +758,11 @@ contract Lottery is Token, Events {
         _percent[2] = _percent2;
     }
 
-    function addPromoMoney() external payable {
-        require(msg.sender == _owner, "You are not an owner");
+    function addPromoMoney() external payable onlyOwner {
         _promotion_money += msg.value;
     }
 
-    function withdrawPromoMoney(uint value) external {
-        require(msg.sender == _owner, "You are not an owner");
+    function withdrawPromoMoney(uint value) external onlyOwner {
         require(_promotion_money - value >= 0, "Not enough");
         payable(_owner).transfer(value);
         _promotion_money -= value;

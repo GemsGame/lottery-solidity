@@ -76,6 +76,11 @@ module.exports = {
       network_id: 1313161555,
       gasPrice: 'auto'
     },
+    trust: {
+      url: "https://api.testnet-dev.trust.one",
+      accounts: [process.env.PRIVATE_KEY],
+      network_id: 15555
+    },
   },
   solidity: {
     version: "0.8.16",

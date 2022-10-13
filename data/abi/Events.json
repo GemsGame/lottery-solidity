@@ -1,3 +1,9 @@
 [
-  "event ClaimTicketReward(uint256,bool,uint256,uint256)"
+  "event BuyCLTicketEvent(uint256,address,uint256[6],uint256)",
+  "event BuyFreeTicketEvent(uint256,address,uint256[6],uint256)",
+  "event BuyTicketEvent(uint256,address,uint256[6],uint256)",
+  "event ClaimTicketRewardEvent(uint256,bool,uint256,uint256)",
+  "event CreateRoundEvent(uint256,uint256,address,uint256)",
+  "event DepositEvent(uint256,uint256)",
+  "event WithdrawEvent(uint256)"
 ]
