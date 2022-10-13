@@ -18,10 +18,10 @@ contract Lottery is Token, Events {
     uint public _promotion_money;
     uint256 private _secret_key;
     uint256 public _next_game_reward;
-    address payable public _owner;
+    address payable public _lottery_owner;
     
     modifier onlyOwner {
-      require(msg.sender == _owner, "You are not an owner");
+      require(msg.sender == _lottery_owner, "You are not an owner");
       _;
     }
    
@@ -47,7 +47,7 @@ contract Lottery is Token, Events {
         _ticket_price = ticket_price;
         _ticket_price_cl = ticket_price_cl;
         _fee = fee;
-        _owner = payable(msg.sender);
+        _lottery_owner = payable(msg.sender);
         _percent[0] = 2;
         _percent[1] = 10;
         _percent[2] = 30;
@@ -578,13 +578,13 @@ contract Lottery is Token, Events {
 
     function claimOwnerEthReward(uint number) external onlyOwner {
         require(_fee_value - number >= 0, "not enough of eth");
-        payable(_owner).transfer(_fee_value);
+        payable(_lottery_owner).transfer(_fee_value);
         _fee_value -= number;
     }
 
     function claimOwnerTokenReward(uint number) external onlyOwner {
         require(_token_reward - number >= 0, "not enough of tokens");
-        _mint(_owner, number);
+        _mint(_lottery_owner, number);
         _token_reward -= number;
     }
 
@@ -764,7 +764,7 @@ contract Lottery is Token, Events {
 
     function withdrawPromoMoney(uint value) external onlyOwner {
         require(_promotion_money - value >= 0, "Not enough");
-        payable(_owner).transfer(value);
+        payable(_lottery_owner).transfer(value);
         _promotion_money -= value;
     }
 

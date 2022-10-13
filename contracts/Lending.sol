@@ -6,10 +6,10 @@ contract Lending is Events {
     mapping(address => uint256) private _lending;
     mapping(address => uint256) private _lending_timestamp;
     LendingStatus public _lending_status = LendingStatus.Online;
-    address _owner = msg.sender;
+    address _lending_owner = msg.sender;
 
-    modifier onlyOwner() {
-        require(msg.sender == _owner, "You are not an owner");
+    modifier _onlyOwner() {
+        require(msg.sender == _lending_owner, "You are not an owner");
         _;
     }
 
@@ -63,7 +63,7 @@ contract Lending is Events {
         );
     }
 
-    function lendOff(bool status) external onlyOwner {
+    function lendOff(bool status) external _onlyOwner {
         if (status == true) {
             _lending_status = LendingStatus.Offline;
         } else {
@@ -71,7 +71,7 @@ contract Lending is Events {
         }
     }
 
-    function changePercentDay (uint _percentDay) external onlyOwner {
+    function changePercentDay (uint _percentDay) external _onlyOwner {
         require(_percentDay < 100, "Too much");
         percentDay = _percentDay;
     }

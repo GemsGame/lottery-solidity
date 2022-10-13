@@ -1,5 +1,4 @@
 [
-  "constructor()",
   "event Approval(address indexed,address indexed,uint256)",
   "event Transfer(address indexed,address indexed,uint256)",
   "function allowance(address,address) view returns (uint256)",

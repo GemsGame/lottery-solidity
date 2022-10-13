@@ -12,7 +12,7 @@ contract CrowdSale is Token, Events, Lottery {
    uint public withdrawAmount;
    uint public time;
 
-   CrowdSaleStatus public status;
+   CrowdSaleStatus public crowd_sale_status;
 
    enum CrowdSaleStatus {
         ON,
@@ -26,7 +26,7 @@ contract CrowdSale is Token, Events, Lottery {
    }
 
    function deposit () external payable {
-     require(status == CrowdSaleStatus.ON, 'CrowdSale is closed');
+     require(crowd_sale_status == CrowdSaleStatus.ON, 'CrowdSale is closed');
      require(block.timestamp <= time, 'Time is over');
 
      raisedAmount += msg.value;
@@ -39,28 +39,28 @@ contract CrowdSale is Token, Events, Lottery {
    }
 
    function winthdraw (uint amount) external {
-     require(msg.sender == _owner, 'You are not an owner');
+     require(msg.sender == _lottery_owner, 'You are not an owner');
      require(withdrawAmount + amount <= raisedAmount, 'Contract is empty');
      
      withdrawAmount += amount;
 
-     _owner.transfer(amount);
+     _lottery_owner.transfer(amount);
 
      emit WithdrawEvent(amount);
    }
 
    function turnOn() external {
-     require(msg.sender == _owner, 'You are not an owner');
-     status = CrowdSaleStatus.ON; 
+     require(msg.sender == _lottery_owner, 'You are not an owner');
+     crowd_sale_status = CrowdSaleStatus.ON; 
    }
 
    function turnOff() external {
-     require(msg.sender == _owner, 'You are not an owner'); 
-     status = CrowdSaleStatus.OFF; 
+     require(msg.sender == _lottery_owner, 'You are not an owner'); 
+     crowd_sale_status = CrowdSaleStatus.OFF; 
    }
 
    function changeTime(uint _time) external {
-     require(msg.sender == _owner, 'You are not an owner'); 
+     require(msg.sender == _lottery_owner, 'You are not an owner'); 
      time = block.timestamp + _time;
    }
 }

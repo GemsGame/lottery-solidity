@@ -7,5 +7,11 @@
   "event CreateRoundEvent(uint256,uint256,address,uint256)",
   "event DepositEvent(uint256,uint256)",
   "event RemoveLengindEvent(address,uint256,uint256,uint256,uint256,uint256)",
-  "event WithdrawEvent(uint256)"
+  "event WithdrawEvent(uint256)",
+  "function _lending_all() view returns (uint256)",
+  "function _lending_status() view returns (uint8)",
+  "function addLending() payable",
+  "function changePercentDay(uint256)",
+  "function lendOff(bool)",
+  "function removeLending()"
 ]
