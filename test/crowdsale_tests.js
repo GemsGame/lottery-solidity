@@ -18,7 +18,6 @@ describe("Crypto Lottery crowdsale tests", () => {
     expect(contract.address).to.be.properAddress;
   });
 
-
   it("should be OFF crowdsale status", async () => {
     const tx = await contract.turnOff();
     const status = await contract.crowd_sale_status();
